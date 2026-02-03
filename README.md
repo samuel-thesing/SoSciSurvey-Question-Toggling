@@ -19,7 +19,7 @@ All of these functions expect the same arguments:
 toggleQuestionByDropdown("AB01", ["Anderer"], ["AB35_qst"]);
 
 toggleQuestionByMultiSelect("AB04_qst", ["DZG (mit Folgefrage)"], ["AB05_qst"]);
-toggleQuestionBySingleSelect("AB04_qst", ["Andere"], ["AB07_qst", "AB08_qst"]);
+toggleQuestionByMultiSelect("AB04_qst", ["Andere"], ["AB07_qst", "AB08_qst"]);
 
 toggleQuestionBySingleSelect("AB05_qst", ["DZL - Deutsches Zentrum für Lungenforschung"], ["AB06_qst"]);
 
