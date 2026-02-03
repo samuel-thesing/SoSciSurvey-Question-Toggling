@@ -1,0 +1,151 @@
+// ---------------------------------------------------------------
+// -- Functions for selection-based same-page question-toggling --
+// ---------------------------------------------------------------
+function loadQuestion(name) {
+    const trigger = document.getElementById(name);
+    if (trigger === null) {
+        console.error(`Failed to find question by name '${name}'`);
+    }
+    return trigger;
+}
+
+function loadQuestions(names) {
+    const elements = names.map((name) => {
+        const el = document.getElementById(name);
+        if (el === null) {
+            console.error(`Failed to find question by name '${name}'`);
+            error = true;
+        }
+        return el;
+    });
+    return elements;
+}
+
+function update_toggle_questions_fn(targets, show) {
+    targets.forEach(target => {
+        target.style.display = show ? "" : "none";
+    });
+}
+
+function getDropDownSelection(dropdown) {
+    return dropdown.options[dropdown.selectedIndex].text;
+}
+
+function toggleQuestionByDropdown(dropdown, trigger_labels, toggle_questions, callback) {
+    callback = callback ?? (() => {});
+
+    const trigger = loadQuestion(dropdown);
+    const targets = loadQuestions(toggle_questions);
+    if (trigger == null || targets.some(t => t == null)) return;
+
+    SoSciTools.attachEvent(trigger, "change", () => {
+        const show = trigger_labels.includes(getDropDownSelection(trigger));
+        update_toggle_questions_fn(targets, show);
+        callback(show);
+    });
+
+    update_toggle_questions_fn(targets, trigger_labels.includes(getDropDownSelection(trigger)));
+}
+
+function getLabelForSelector(checkbox) {
+    const parent = checkbox.parentNode.parentNode; 
+    const label = parent.querySelector("label");
+    return label.textContent;
+}
+
+function toggleQuestionByMultiSelect(trigger_qst, trigger_labels, toggle_questions, callback) {
+    callback = callback ?? (() => {});
+
+    const trigger = loadQuestion(trigger_qst);
+    const targets = loadQuestions(toggle_questions);
+    if (trigger == null || targets.some(t => t == null)) return;
+
+    const state = new Set();
+
+    const checkboxes = trigger.querySelectorAll("input[type='checkbox']");
+    for (let checkbox of checkboxes) {
+        const label = getLabelForSelector(checkbox);
+        if (trigger_labels.includes(label)) {
+            if (checkbox.checked) {
+                state.add(label);
+            }
+
+            SoSciTools.attachEvent(checkbox, "change", () => {
+                if (checkbox.checked) state.add(label);
+                else state.delete(label);
+                
+                update_toggle_questions_fn(targets, state.size != 0);
+                callback(state.size != 0);
+            });
+        }
+    }
+
+    update_toggle_questions_fn(targets, state.size != 0);
+}
+
+function toggleQuestionBySingleSelect(trigger_qst, trigger_labels, toggle_questions, callback) {
+    callback = callback ?? (() => {});
+
+    const trigger = loadQuestion(trigger_qst);
+    const targets = loadQuestions(toggle_questions);
+    if (trigger == null || targets.some(t => t == null)) return;
+
+    let current = "";
+    const radio_buttons = trigger.querySelectorAll("input[type='radio']");
+    for (let radio_button of radio_buttons) {
+        const label = getLabelForSelector(radio_button);
+        if (radio_button.checked) {
+            current = label;
+        }
+
+        SoSciTools.attachEvent(radio_button, "change", () => {
+            current = label;
+            update_toggle_questions_fn(targets, trigger_labels.includes(current));
+            callback(trigger_labels.includes(current));
+        });
+    }
+
+    update_toggle_questions_fn(targets, trigger_labels.includes(current));
+}
+
+// -- end functions ----------------------------------------------
+
+/*
+Available for three types of questions:
+- Dropdown (toggleQuestionbyDropdown)
+- Multi-Select (toggleQuestionbyMultiSelect)
+- Single-Select (toggleQuestionbySingleSelect)
+
+All of these functions expect the same arguments:
+1. Question whose options should toggle other questions
+2. List of labels of the question from 1. where the questions from 3. should be shown
+3. List of questions to toggle
+4. Optional: Callback with single bool-argument. If the questions are shown true else false
+*/
+
+/*
+//Examples:
+toggleQuestionByDropdown("AB01", ["Anderer"], ["AB35_qst"]);
+toggleQuestionByMultiSelect("AB04_qst", ["DZG (mit Folgefrage)"], ["AB05_qst"]);
+toggleQuestionBySingleSelect("AB05_qst", ["DZG (mit Folgefrage)"], ["AB05_qst"]);
+
+// The following code shows an example usage of the callback,
+// where the input-field of the toggled question is cleared if it is hidden.
+toggleQuestionByDropdown("AB01", ["Anderer"], ["AB35_qst"], (show) => {
+    if (!show) {
+        ab35Input.value = "";
+    }
+});
+*/
+
+// Add your code here
+
+var ab35Input = document.getElementById("AB35_01");
+toggleQuestionByDropdown("AB01", ["Anderer"], ["AB35_qst"], (show) => {
+    if (!show) {
+        ab35Input.value = "";
+    }
+});
+
+toggleQuestionBySingleSelect("AB04_qst", ["DZG (mit Folgefrage)"], ["AB05_qst"]);
+toggleQuestionBySingleSelect("AB04_qst", ["Andere"], ["AB06_qst"]);
