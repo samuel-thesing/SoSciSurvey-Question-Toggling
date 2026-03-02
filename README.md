@@ -14,7 +14,9 @@ All of these functions expect the same arguments:
 4. Optional: Callback with single bool-argument. If the questions are shown true else false
 
 
-## Examples
+## How to use
+Copy the content of [toggle.html](toggle.html) to a html-field at the end of the page you want to use it for.\
+**Don't forget the script tags!**
 ```js
 toggleQuestionByDropdown("AB01", ["Anderer"], ["AB35_qst"]);
 
